@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.sunchang.callhtmltest">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".LaunchActivity"
+            android:theme="@style/LaunchActivityTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+
+        <receiver
+            android:name=".FrequentClickReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.sunchang.callhtmltest.FREQUENT_CLICK_BROADCAST" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name=".ForumContentActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".SearchResultActivity" />
+        <activity android:name=".LoginActivity" />
+        <activity
+            android:name=".SignupActivity"
+            android:theme="@style/DialogActivity" />
+        <activity android:name=".LoginDialog"
+            android:theme="@style/DialogActivity"></activity>
+    </application>
+
+</manifest>

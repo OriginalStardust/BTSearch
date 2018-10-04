@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">BT种子搜索</string>
+    <string name="main_label">BT种子搜索</string>
+
+    <string-array name="forums">
+        <item>dayangd</item>
+        <item>longbaidu</item>
+        <item>87lou</item>
+        <item>hdchd</item>
+        <item>vkugq</item>
+    </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#00AFAF</color>
+    <color name="colorPrimaryDark">#009595</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="login_card_bg">#00AFAF</color>
+    <color name="logout_card_bg">#A9A9A9</color>
+    <color name="transparent_bg">#88444444</color>
+</resources>
