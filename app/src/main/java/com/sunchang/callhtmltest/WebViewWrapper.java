@@ -1,11 +1,9 @@
 package com.sunchang.callhtmltest;
 
-import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -31,8 +29,6 @@ public class WebViewWrapper {
 
     private boolean isSearchClicked;
 
-    public static boolean isSignedIn;
-
     private String baseUrl;
 
     private String resultNum;
@@ -57,18 +53,6 @@ public class WebViewWrapper {
                 Log.e("url", url);
                 return true;
             }
-
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
-            }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-            }
-
-
         });
 
         this.setMyChromeClient(webView);
@@ -77,16 +61,12 @@ public class WebViewWrapper {
     public void setMyChromeClient(WebView webView) {
         webView.setWebChromeClient(new WebChromeClient(){
             @Override
-            public void onProgressChanged(WebView view, int newProgress) {
+            public void onProgressChanged(final WebView view, int newProgress) {
                 if (!isValueChanged) {
                     view.loadUrl("javascript:window.local_obj.getSource(document.getElementsByTagName('html')[0].innerHTML);");
                 }
                 if (isSearchClicked) {
-                    view.evaluateJavascript("javascript:window.local_obj.getResultNum(document.getElementsByClassName('sttl mbn')[0].innerHTML);",
-                            new ValueCallback<String>() {
-                                @Override
-                                public void onReceiveValue(String value) {}
-                            });
+                    view.evaluateJavascript("javascript:window.local_obj.getResultNum(document.getElementsByClassName('sttl mbn')[0].innerHTML);", null);
                 }
                 super.onProgressChanged(view, newProgress);
             }
@@ -96,47 +76,36 @@ public class WebViewWrapper {
     protected class InJavaScriptLocalObj {
 
         @JavascriptInterface
-        public void getSource(final String html) {
-            new Thread(new Runnable() {
-                Document document = null;
-                @Override
-                public void run() {
-                    try {
-                        document = Jsoup.parse(html);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Element editText = document.getElementById("scform_srchtxt");
-                    Elements resultNum = document.getElementsByClass("sttl mbn");
-                    if ((editText != null) && (resultNum.size() == 0) && !isValueChanged) {
-                        isValueChanged = true;
-                        isSignedIn = false;
-                        Message msg = new Message();
-                        msg.what = 1;
-                        handler.sendMessage(msg);
-                    }
-                }
-            }).start();
+        public void getSource(String html) {
+            Document document = null;
+            try {
+                document = Jsoup.parse(html);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Element editText = document.getElementById("scform_srchtxt");
+            Elements resultNum = document.getElementsByClass("sttl mbn");
+            if ((editText != null) && (resultNum.size() == 0) && !isValueChanged) {
+                isValueChanged = true;
+                Message msg = new Message();
+                msg.what = 1;
+                handler.sendMessage(msg);
+            }
         }
 
         @JavascriptInterface
         public void getResultNum(final String result) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (result != null && isSearchClicked) {
-                        resultNum = result.replaceAll("<(\\S*?)[^>]*>.*?|<.*? />", "")
-                                .replace(" ", "")
-                                .replace("\n", "")
-                                .replace("结果:", "")
-                                .replace("“" + content + "”", "");
-                        isSearchClicked = false;
-                        Message msg = new Message();
-                        msg.what = 2;
-                        handler.sendMessage(msg);
-                    }
-                }
-            }).start();
+            if (!"null".equals(result) && isSearchClicked) {
+                resultNum = result.replaceAll("<(\\S*?)[^>]*>.*?|<.*? />", "")
+                        .replace(" ", "")
+                        .replace("\n", "")
+                        .replace("结果:", "")
+                        .replace("“" + content + "”", "");
+                isSearchClicked = false;
+                Message msg = new Message();
+                msg.what = 2;
+                handler.sendMessage(msg);
+            }
         }
     }
 
@@ -146,11 +115,7 @@ public class WebViewWrapper {
             super.handleMessage(msg);
             switch (msg.what) {
                 case 1:
-                    webView.evaluateJavascript("javascript:document.getElementById('scform_srchtxt').value='" + content + "';",
-                            new ValueCallback<String>() {
-                                @Override
-                                public void onReceiveValue(String value) {}
-                            });
+                    webView.evaluateJavascript("javascript:document.getElementById('scform_srchtxt').value='" + content + "';", null);
                     webView.loadUrl("javascript:document.getElementById('scform_submit').click()");
                     break;
                 case 2:

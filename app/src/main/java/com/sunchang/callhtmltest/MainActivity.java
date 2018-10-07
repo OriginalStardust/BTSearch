@@ -52,15 +52,9 @@ public class MainActivity extends AppCompatActivity{
 
     public static final String USER_AGENT_WINDOWS = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36";
 
-    public static boolean isFirstReceived = true;
-
     private long firstBackPressTime = 0;
 
-    private WebView webView01;
-    private WebView webView02;
-    private WebView webView03;
-    private WebView webView04;
-    private WebView webView05;
+    private List<WebView> webViewList = new ArrayList<>();
 
     private WebViewWrapperDaYangD wrapperDaYangD;
     private WebViewWrapper wrapperLongBaidu, wrapper87Lou, wrapperSY9D, wrapper1080;
@@ -116,11 +110,23 @@ public class MainActivity extends AppCompatActivity{
         mDrawerToggle.syncState();
         mDrawerLayout.addDrawerListener(mDrawerToggle);
 
-        webView01 = new WebView(this);
-        webView02 = new WebView(this);
-        webView03 = new WebView(this);
-        webView04 = new WebView(this);
-        webView05 = new WebView(this);
+        WebView webView01 = new WebView(this);
+        WebView webView02 = new WebView(this);
+        WebView webView03 = new WebView(this);
+        WebView webView04 = new WebView(this);
+        WebView webView05 = new WebView(this);
+
+        wrapperDaYangD = new WebViewWrapperDaYangD(webView01, DAYANGD);
+        wrapperLongBaidu = new WebViewWrapper(webView02, LONGBAIDU);
+        wrapper87Lou = new WebViewWrapper(webView03, UOL78);
+        wrapperSY9D = new WebViewWrapper(webView04, SY9D);
+        wrapper1080 = new WebViewWrapper(webView05, I080);
+
+        webViewList.add(webView01);
+        webViewList.add(webView02);
+        webViewList.add(webView03);
+        webViewList.add(webView04);
+        webViewList.add(webView05);
 
         mTvLogout = findViewById(R.id.tv_logout);
 
@@ -128,12 +134,6 @@ public class MainActivity extends AppCompatActivity{
         mSearchList = findViewById(R.id.search_list);
         mResultAdapter = new SearchResultNumAdapter(this, mResultList);
         mSearchList.setAdapter(mResultAdapter);
-
-        wrapperDaYangD = new WebViewWrapperDaYangD(webView01, DAYANGD);
-        wrapperLongBaidu = new WebViewWrapper(webView02, LONGBAIDU);
-        wrapper87Lou = new WebViewWrapper(webView03, UOL78);
-        wrapperSY9D = new WebViewWrapper(webView04, SY9D);
-        wrapper1080 = new WebViewWrapper(webView05, I080);
     }
 
     private void initEvents() {
@@ -152,26 +152,25 @@ public class MainActivity extends AppCompatActivity{
                     mResultList.clear();
                     mResultAdapter.notifyDataSetChanged();
                     mSearchList.setVisibility(View.VISIBLE);
-                    isFirstReceived = true;
 
                     if (MyApplication.LOGIN_STATUS[0]) {
-                        webView01.stopLoading();
+                        webViewList.get(0).stopLoading();
                         wrapperDaYangD.startSearch("http://zhannei.baidu.com/cse/search?q=" + query + "&s=3055704869350336262&stp=1&nsid=0");
                     }
                     if (MyApplication.LOGIN_STATUS[1]) {
-                        webView02.stopLoading();
+                        webViewList.get(1).stopLoading();
                         wrapperLongBaidu.startSearch("http://www.longbaidu.com/search.php?mod=forum", query);
                     }
                     if (MyApplication.LOGIN_STATUS[2]) {
-                        webView03.stopLoading();
+                        webViewList.get(2).stopLoading();
                         wrapper87Lou.startSearch("http://www.87lou.com/search.php?mod=forum", query);
                     }
                     if (MyApplication.LOGIN_STATUS[3]) {
-                        webView04.stopLoading();
+                        webViewList.get(3).stopLoading();
                         wrapperSY9D.startSearch("http://www.sy9d.com/search.php?mod=forum", query);
                     }
                     if (MyApplication.LOGIN_STATUS[4]) {
-                        webView05.stopLoading();
+                        webViewList.get(4).stopLoading();
                         wrapper1080.startSearch("http://www.1080.cn/search.php?mod=forum", query);
                     }
                 }
@@ -241,25 +240,14 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onDestroy() {
-        if (webView01 != null) {
-            webView01.destroy();
-            webView01 = null;
-        }
-        if (webView02 != null) {
-            webView02.destroy();
-            webView02 = null;
-        }
-        if (webView03 != null) {
-            webView03.destroy();
-            webView03 = null;
-        }
-        if (webView04 != null) {
-            webView04.destroy();
-            webView04 = null;
-        }
-        if (webView05 != null) {
-            webView05.destroy();
-            webView05 = null;
+        for (WebView view : webViewList) {
+            if (view != null){
+                view.getSettings().setJavaScriptEnabled(false);
+                view.clearHistory();
+                view.removeAllViews();
+                view.destroy();
+                view = null;
+            }
         }
 
         MyApplication.status_editor.putBoolean(MainActivity.DAYANGD, MyApplication.LOGIN_STATUS[0]);
